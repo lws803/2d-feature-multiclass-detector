@@ -21,9 +21,9 @@ class pipeline:
 
 
     def preprocess(self, img):
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        bw_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         kp2 = self.orb.detect(img, None)
-        kp2, des2 = self.orb.compute(img, kp2)
+        kp2, des2 = self.orb.compute(bw_image, kp2)
         # matches = self.bf.match(self.des1, des2)
         if len(self.des1) > 0 and len(des2) > 0:
             matches = self.flann.knnMatch(np.float32(self.des1), np.float32(des2), k=2)
@@ -44,7 +44,7 @@ class pipeline:
             #         dst = cv2.perspectiveTransform(pts, M)
             #         img = cv2.polylines(img, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
             for pt in dst_pts:
-                img = cv2.circle(img, (pt[0][0], pt[0][1]), 2, (255, 255), 2)
+                img = cv2.circle(img, (pt[0][0], pt[0][1]), 2, (255, 255, 0), 2)
 
         return img
 
