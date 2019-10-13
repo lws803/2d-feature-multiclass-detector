@@ -5,6 +5,7 @@ import argparse
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--train_image', type=str)
+parser.add_argument('--query_image', type=str)
 args = parser.parse_args()
 
 if args.train_image is None:
@@ -44,7 +45,7 @@ class pipeline:
             #         dst = cv2.perspectiveTransform(pts, M)
             #         img = cv2.polylines(img, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
             for pt in dst_pts:
-                img = cv2.circle(img, (pt[0][0], pt[0][1]), 2, (255, 255, 0), 2)
+                img = cv2.circle(img, (pt[0][0], pt[0][1]), 10, (255, 255, 0), -1)
 
         return img
 
@@ -56,7 +57,9 @@ class pipeline:
 
 # main
 if __name__ == '__main__':
-    cap = cv2.VideoCapture(0)
+    cap = None
+    if args.query_image is None:
+        cap = cv2.VideoCapture(0)
 
     train_image = cv2.imread(args.train_image)  # trainImage
     train_image = cv2.cvtColor(train_image, cv2.COLOR_BGR2GRAY)
@@ -65,7 +68,11 @@ if __name__ == '__main__':
     my_pipeline = pipeline(train_image)
 
     while(True):
-        ret, frame = cap.read()
+        if args.query_image is None:
+            ret, frame = cap.read()
+        else:
+            frame = cv2.imread(args.query_image)
+
         # initialize
         frame_size = frame.shape
         frame_width = frame_size[1]
@@ -79,7 +86,7 @@ if __name__ == '__main__':
 
         # numpy_horizontal_concat = np.concatenate((frame, visualisation), 1)
 
-        cv2.imshow('image', visualisation)
+        cv2.imshow('image', cv2.resize(visualisation, (0, 0), fx=0.3, fy=0.3))
 
         cv2.waitKey(1)
         # exit if the key "q" is pressed
