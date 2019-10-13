@@ -33,16 +33,18 @@ class pipeline:
                 if m.distance < 0.7 * n.distance:
                     good.append(m)
 
-            src_pts = np.float32([self.kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+            # src_pts = np.float32([self.kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
             dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-            if len(src_pts) > 0 and len(dst_pts) > 0:
-                M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-                if M is not None and mask is not None and len(M) > 0 and len(mask) > 0:
-                    matchesMask = mask.ravel().tolist()
-                    h, w = img.shape
-                    pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
-                    dst = cv2.perspectiveTransform(pts, M)
-                    img = cv2.polylines(img, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+            # if len(src_pts) > 0 and len(dst_pts) > 0:
+            #     M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+            #     if M is not None and mask is not None and len(M) > 0 and len(mask) > 0:
+            #         matchesMask = mask.ravel().tolist()
+            #         h, w = img.shape
+            #         pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
+            #         dst = cv2.perspectiveTransform(pts, M)
+            #         img = cv2.polylines(img, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+            for pt in dst_pts:
+                img = cv2.circle(img, (pt[0][0], pt[0][1]), 2, (255, 255), 2)
 
         return img
 
@@ -58,7 +60,7 @@ if __name__ == '__main__':
 
     train_image = cv2.imread(args.train_image)  # trainImage
     train_image = cv2.cvtColor(train_image, cv2.COLOR_BGR2GRAY)
-    train_image = cv2.resize(train_image, (0, 0), fx=0.3, fy=0.3)  # Scale resizing
+    # train_image = cv2.resize(train_image, (0, 0), fx=0.3, fy=0.3)  # Scale resizing
     # TODO: Find out why it is segfaulting
     my_pipeline = pipeline(train_image)
 
@@ -69,7 +71,7 @@ if __name__ == '__main__':
         frame_width = frame_size[1]
         frame_height = frame_size[0]
 
-        frame = cv2.resize(frame, (0, 0), fx=0.3, fy=0.3)  # Scale resizing
+        # frame = cv2.resize(frame, (0, 0), fx=0.3, fy=0.3)  # Scale resizing
 
         thresholds = {}
 
