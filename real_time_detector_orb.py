@@ -26,7 +26,7 @@ class pipeline:
         kp2 = self.orb.detect(img, None)
         kp2, des2 = self.orb.compute(bw_image, kp2)
         # matches = self.bf.match(self.des1, des2)
-        if len(self.des1) > 0 and len(des2) > 0:
+        if des2 is not None and len(self.des1) > 0 and len(des2) > 0:
             matches = self.flann.knnMatch(np.float32(self.des1), np.float32(des2), k=2)
 
             good = []
@@ -36,22 +36,31 @@ class pipeline:
 
             # src_pts = np.float32([self.kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
             dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-            # if len(src_pts) > 0 and len(dst_pts) > 0:
-            #     M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-            #     if M is not None and mask is not None and len(M) > 0 and len(mask) > 0:
-            #         matchesMask = mask.ravel().tolist()
-            #         h, w = img.shape
-            #         pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
-            #         dst = cv2.perspectiveTransform(pts, M)
-            #         img = cv2.polylines(img, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
             for pt in dst_pts:
                 img = cv2.circle(img, (pt[0][0], pt[0][1]), 10, (255, 255, 0), -1)
+            return img, dst_pts
+        else:
+            return img, []
 
+    def sliding_window(self, img):
+        stepSize = 1000
+        (w_width, w_height) = (self.train_image.shape[0], self.train_image.shape[1])  # window size
+        best_point = None
+        num_best_points = 0
+        for x in range(0, img.shape[1] - w_width, stepSize):
+            for y in range(0, img.shape[0] - w_height, stepSize):
+                window = img[x:x + w_width, y:y + w_height, :]
+                _, points = self.preprocess(window)
+                if len(points) > num_best_points:
+                    best_point = (x + w_width, y + w_height)
+
+        # TODO: Write a better algo here to determine a selection of points we can use to consider it as the object we want
+        if best_point is not None:
+            img = cv2.circle(img, (best_point[0], best_point[1]), 30, (0, 255, 0), -1)
         return img
 
-
     def visualisation(self, img):
-        img = self.preprocess(img)
+        img = self.sliding_window(img)
         return img
 
 
@@ -64,7 +73,7 @@ if __name__ == '__main__':
     train_image = cv2.imread(args.train_image)  # trainImage
     train_image = cv2.cvtColor(train_image, cv2.COLOR_BGR2GRAY)
     # train_image = cv2.resize(train_image, (0, 0), fx=0.3, fy=0.3)  # Scale resizing
-    # TODO: Find out why it is segfaulting
+
     my_pipeline = pipeline(train_image)
 
     while(True):
