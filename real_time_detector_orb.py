@@ -53,6 +53,7 @@ class pipeline:
                 _, points = self.preprocess(window)
                 if len(points) > num_best_points:
                     best_point = (x + w_width, y + w_height)
+                    num_best_points = len(points)
 
         # TODO: Write a better algo here to determine a selection of points we can use to consider it as the object we want
         if best_point is not None:
