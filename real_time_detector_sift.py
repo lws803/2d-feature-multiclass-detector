@@ -22,7 +22,7 @@ class pipeline:
 
 
     def preprocess(self, img):
-        bw_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        bw_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # TODO: Try to feed a color image instead
         kp2 = self.sift.detect(img, None)
         kp2, des2 = self.sift.compute(bw_image, kp2)
         # matches = self.bf.match(self.des1, des2)
