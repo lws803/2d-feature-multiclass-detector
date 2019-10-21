@@ -13,18 +13,19 @@ if args.train_image is None:
 
 class pipeline:
     def __init__(self, train_image):
-        self.sift = cv2.xfeatures2d.SIFT_create()
+        self.surf = cv2.xfeatures2d.SURF_create()
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        self.kp1 = self.sift.detect(train_image, None)  # TODO: Test out SIFT/ SURF performance
-        self.kp1, self.des1 = self.sift.compute(train_image, self.kp1)
+        self.kp1 = self.surf.detect(train_image, None)  # TODO: Test out SIFT/ SURF performance
+        # TODO: Maybe try a combination of SUFT and FAST detectors - use SURF for training and FAST for realtime detection
+        self.kp1, self.des1 = self.surf.compute(train_image, self.kp1)
         self.flann = cv2.FlannBasedMatcher(dict(algorithm=0, trees=5), dict(checks=50))
         self.train_image = train_image
 
 
     def preprocess(self, img):
         bw_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # TODO: Try to feed a color image instead
-        kp2 = self.sift.detect(img, None)
-        kp2, des2 = self.sift.compute(bw_image, kp2)
+        kp2 = self.surf.detect(img, None)
+        kp2, des2 = self.surf.compute(bw_image, kp2)
         # matches = self.bf.match(self.des1, des2)
         if des2 is not None and len(self.des1) > 0 and len(des2) > 0:
             matches = self.flann.knnMatch(np.float32(self.des1), np.float32(des2), k=2)
