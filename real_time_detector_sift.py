@@ -20,6 +20,8 @@ class pipeline:
         self.kp1, self.des1 = self.surf.compute(train_image, self.kp1)
         self.flann = cv2.FlannBasedMatcher(dict(algorithm=0, trees=5), dict(checks=50))
         self.train_image = train_image
+        # TODO: Consider not doing sliding window for SIFT and instead use clustering to detect the largest cluster
+        # then consider that as the window for detection
 
 
     def preprocess(self, img):
