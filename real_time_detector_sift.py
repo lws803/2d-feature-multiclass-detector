@@ -15,7 +15,7 @@ class pipeline:
     def __init__(self, train_image):
         self.sift = cv2.xfeatures2d.SIFT_create()
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        self.kp1 = self.sift.detect(train_image, None)  # TODO: Test out SIFT performance
+        self.kp1 = self.sift.detect(train_image, None)  # TODO: Test out SIFT/ SURF performance
         self.kp1, self.des1 = self.sift.compute(train_image, self.kp1)
         self.flann = cv2.FlannBasedMatcher(dict(algorithm=0, trees=5), dict(checks=50))
         self.train_image = train_image
